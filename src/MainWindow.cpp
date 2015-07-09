@@ -4,8 +4,9 @@
 
 #include <iostream>
 
+#include <cmath>
 #include <map>
-
+#include <sstream>
 const int CHARACTERS_X = 240;
 const int CHARACTERS_Y = 120;
 
@@ -42,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_UpdateTimer = new QTimer();
     m_ElapsedTimer = new QTime();
 
+    m_ShouldPlayAnimation = true;
     m_ShouldShowMessageBox = true;
 
 
@@ -63,10 +65,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     PositionCharacters(0);
 
+    connect(ui->actionDaily_Seed, SIGNAL(triggered(bool)), this, SLOT(Titlebar_File_DailySeed_triggered()));
     connect(ui->actionQuit_Alt_F4, SIGNAL(triggered(bool)), this, SLOT(Titlebar_File_Quit_triggered()));
-    connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(Titlebar_Help_About_triggered()));
+
     connect(ui->actionShow_message_box, SIGNAL(toggled(bool)), this, SLOT(Titlebar_Edit_ShowMessageBox_toggled(bool)));
     connect(ui->actionPlay_animation, SIGNAL(toggled(bool)), this, SLOT(Titlebar_Edit_PlayAnimation_toggled(bool)));
+
+    connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(Titlebar_Help_About_triggered()));
 }
 
 // Position the title text of the window
@@ -75,7 +80,7 @@ void MainWindow::SetTitle()
     QLabel* lblTitle = new QLabel();
     lblTitle->setParent(ui->centralWidget);
     QFont font = lblTitle->font();
-    font.setPointSize(24);
+    font.setPixelSize(32);
     font.setBold(true);
     lblTitle->setFont(font);
     lblTitle->setAlignment(Qt::AlignCenter);
@@ -107,7 +112,7 @@ void MainWindow::SetCharacters()
 // Place and label checkboxes
 void MainWindow::SetCheckboxes()
 {
-    int startX = CHARACTERS_X+20;
+    int startX = CHARACTERS_X+10;
     int startY = CHARACTERS_Y + 160;
     for (int i = 0; i < NUM_CHARACTERS; ++i)
     {
@@ -126,13 +131,19 @@ void MainWindow::SetCheckboxes()
         int y = startY;
 
         if (i == NUM_CHARACTERS-1 && i%2 == 0)
-            x = startX -80+ 40;
+            x = startX -80 + 50;
 
-        box_IsSelectable[i]->setGeometry(QRect(x, y, 65, 15));
+        QFont font = box_IsSelectable[i]->font();
+        font.setPixelSize(12);
+        box_IsSelectable[i]->setFont(font);
+        box_IsSelectable[i]->setGeometry(QRect(x, y, 1, 1));
         box_IsSelectable[i]->setText(characters[i].c_str());
+        box_IsSelectable[i]->adjustSize();
 
         connect(box_IsSelectable[i], SIGNAL(toggled(bool)), this, SLOT(Box_Toggled(bool)));
     }
+
+
 }
 
 
@@ -216,43 +227,44 @@ void MainWindow::PositionCharacters(double theta)
 // Spin the circle until we hit the desired character
 void MainWindow::Animate()
 {
-    float speed = 0;
+    //float speed = 0;
     float elapsed = m_ElapsedTimer->elapsed();
 
     float aThresh = 2000;
     float end = 5000;
 
-    if (elapsed > end)
+/*    if (elapsed > end)
     {
         float t = 360-m_Degrees - m_TargetDegrees;
         if (std::abs(t) < 240)
             end += elapsed;
     }
     else
-    {
-        float maxSpeed = 10;
-        if (elapsed < aThresh)
-            speed = elapsed/100;
-        else if (elapsed < end-1000)
-            speed = 10;
-        else if (elapsed < end)
-        {
-            speed = (end-elapsed)/60;
-        }
+    {*/
 
-        if (speed > maxSpeed)
-            speed = maxSpeed;
+
+    float maxSpeed = 10;
+    if (elapsed < aThresh)
+        m_SpinSpeed = elapsed/100;
+    else if (elapsed <= end)
+    {
+       m_SpinSpeed = 10;
+    }
+    else if (elapsed > end)
+    {
+        if (m_SpinSpeed > 2)
+            m_SpinSpeed -=0.3;
     }
 
-    if (speed < 3 && (m_Degrees < m_TargetDegrees - 2 || m_Degrees > m_TargetDegrees + 2))
-        speed = 3;
 
-    m_Degrees+=speed;
+    //}
+
+    m_Degrees+=m_SpinSpeed;
 
     if (m_Degrees > 360)
         m_Degrees-=360;
 
-    if (speed == 0)
+    if (elapsed > end && std::abs(m_Degrees - m_TargetDegrees) < 3)
         m_Spinning = false;
 }
 
@@ -274,6 +286,21 @@ void MainWindow::ShowMessageBox()
 // Button to spin
 void MainWindow::BtnSpin_Clicked()
 {
+    // How many characters are selectable
+    int charCount=0;
+    for (int i = 0; i < NUM_CHARACTERS; ++i)
+        if (bool_IsSelectable[i])
+            charCount++;
+
+    // If no characters are selectable, we can't do anything
+    if (charCount == 0)
+    {
+        QMessageBox* mb = new QMessageBox();
+        mb->setWindowTitle(" ");
+        mb->setText("You need to select some characters, yo!");
+        mb->show();
+        return;
+    }
 
     if (m_ShouldPlayAnimation)
     {
@@ -286,25 +313,6 @@ void MainWindow::BtnSpin_Clicked()
         m_UpdateTimer->start(60);
         m_ElapsedTimer->restart();
     }
-
-
-    // How many characters are selectable
-    int charCount=0;
-    for (int i = 0; i < NUM_CHARACTERS; ++i)
-        if (bool_IsSelectable[i])
-            charCount++;
-
-
-    // If no characters are selectable, we can't do anything
-    if (charCount == 0)
-    {
-        QMessageBox* mb = new QMessageBox();
-        mb->setWindowTitle(" ");
-        mb->setText("You need to select some characters, yo!");
-        mb->show();
-        return;
-    }
-
 
     // Roll
     int result = std::rand() % charCount;
@@ -325,6 +333,7 @@ void MainWindow::BtnSpin_Clicked()
 
     // Position of the character in the circle
     m_TargetDegrees = ((float)m_SelectedCharacter/NUM_CHARACTERS) * 360;
+    m_SpinSpeed = 0;
 
     if (!m_ShouldPlayAnimation)
     {
@@ -361,9 +370,45 @@ MainWindow::~MainWindow()
 
 void MainWindow::Titlebar_Help_About_triggered()
 {
+
+}
+
+void MainWindow::Titlebar_File_DailySeed_triggered()
+{
+    srand(QDateTime::currentDateTime().toString("yyyyMMdd").toInt());
+
+    int num;
+
+    std::string output = "";
+
+    for (int i = 0; i < 8; ++i)
+    {
+        num = (std::rand() % (90-56)) + (56) ;
+
+        if (num < 65)
+            num-=7;
+        char c = (num);
+
+        if (c == '5')
+            c = 'S';
+        else if (c == 'I')
+            c = '1';
+        else if (c == 'O')
+            c = '0';
+        else if (c == 'U')
+            c = 'V';
+
+        output += c;
+        if (i == 3)
+            output += "\n";
+
+    }
+
+
     QMessageBox* mb = new QMessageBox();
-    mb->setWindowTitle("About");
-    mb->setText("Yo dawg.");
+    mb->setWindowTitle("Daily Seed");
+    mb->setText(output.c_str());
+    mb->adjustSize();
     mb->show();
 }
 

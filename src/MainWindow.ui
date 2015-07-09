@@ -30,11 +30,12 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionDaily_Seed"/>
     <addaction name="actionQuit_Alt_F4"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>View</string>
+     <string>Edit</string>
     </property>
     <addaction name="actionPlay_animation"/>
     <addaction name="actionShow_message_box"/>
@@ -49,9 +50,9 @@
    <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
-  <action name="actionQuit_Alt_F4">
+  <action name="actionDaily_Seed">
    <property name="text">
-    <string>Quit (Alt+F4)</string>
+    <string>Daily Seed</string>
    </property>
   </action>
   <action name="actionPlay_animation">
@@ -79,6 +80,11 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionQuit_Alt_F4">
+   <property name="text">
+    <string>Quit (Alt+F4)</string>
    </property>
   </action>
  </widget>

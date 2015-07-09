@@ -65,6 +65,7 @@ private:
     QTime* m_ElapsedTimer;
     double m_Degrees;
     double m_TargetDegrees;
+    double m_SpinSpeed;
     double m_SpinningStartTime;
     int m_SelectedCharacter;
 
@@ -81,6 +82,7 @@ private slots:
     void PositionCharacters(double theta);
     void Box_Toggled(bool checked);
 
+    void Titlebar_File_DailySeed_triggered();
     void Titlebar_File_Quit_triggered();
     void Titlebar_Help_About_triggered();
     void Titlebar_Edit_ShowMessageBox_toggled(bool checked);
