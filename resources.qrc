@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/img_BlueBaby.png</file>
+        <file>images/img_Cain.png</file>
+        <file>images/img_Eden.png</file>
+        <file>images/img_Eve.png</file>
+        <file>images/img_Isaac.png</file>
+        <file>images/img_Judas.png</file>
+        <file>images/img_Lazarus.png</file>
+        <file>images/img_Lost.png</file>
+        <file>images/img_Maggy.png</file>
+        <file>images/img_Samson.png</file>
+        <file>images/img_Azazel.png</file>
+    </qresource>
+</RCC>
