@@ -7,11 +7,11 @@
 #include <map>
 
 const int CHARACTERS_X = 240;
-const int CHARACTERS_Y = 160;
+const int CHARACTERS_Y = 120;
 
 #define M_PI    3.14159265358979323846
 
-double degrees = 0;
+
 template<typename A, typename B>
 std::pair<B,A> flip_pair(const std::pair<A,B> &p)
 {
@@ -33,10 +33,37 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setFixedSize(480, 500);
+    ui->menuBar->setVisible(false);
 
+    // Setup
+    m_Spinning = false;
+    m_Degrees = 0;
+    m_TargetDegrees = 180;
+    m_UpdateTimer = new QTimer();
+    m_ElapsedTimer = new QTime();
+
+    setFixedSize(480, 460);
     srand(time(NULL));
 
+    SetTitle();
+    SetCharacters();
+    SetCheckboxes();
+
+    btn_Spin = new QPushButton();
+    btn_Spin->setParent(ui->centralWidget);
+    btn_Spin->setText("Roll");
+    btn_Spin->setGeometry(CHARACTERS_X-40, CHARACTERS_Y+140, 80, 30);
+    connect(btn_Spin, SIGNAL(clicked(bool)), this, SLOT(BtnSpin_Clicked()));
+
+    m_UpdateTimer = new QTimer(this);
+    connect(m_UpdateTimer, SIGNAL(timeout()), this, SLOT(Update()));
+
+    PositionCharacters(0);
+}
+
+// Position the title text of the window
+void MainWindow::SetTitle()
+{
     QLabel* lblTitle = new QLabel();
     lblTitle->setParent(ui->centralWidget);
     QFont font = lblTitle->font();
@@ -47,22 +74,9 @@ MainWindow::MainWindow(QWidget *parent) :
     lblTitle->setText("The Binding of Isaac\nCharacter Selector");
     lblTitle->setGeometry(QRect(CHARACTERS_X/3, 20, 1, 1));
     lblTitle->adjustSize();
-    SetCharacters();
-    SetCheckboxes();
-    
-
-    QPushButton* btnRoll = new QPushButton();
-    btnRoll->setParent(ui->centralWidget);
-    btnRoll->setText("Roll");
-    btnRoll->setGeometry(CHARACTERS_X-40, CHARACTERS_Y+140, 80, 30);
-    connect(btnRoll, SIGNAL(clicked(bool)), this, SLOT(BtnSpin_Clicked()));
-
-    QTimer* timer = new QTimer(this);
-
-    connect(timer, SIGNAL(timeout()), this, SLOT(Update()));
-    timer->start(60);
 }
 
+// Set up labels and load images
 void MainWindow::SetCharacters()
 {
     for (int i = 0; i < NUM_CHARACTERS; ++i)
@@ -82,10 +96,11 @@ void MainWindow::SetCharacters()
     }
 }
 
+// Place and label checkboxes
 void MainWindow::SetCheckboxes()
 {
-    int startX = 180;
-    int startY = 340;
+    int startX = CHARACTERS_X+20;
+    int startY = CHARACTERS_Y + 160;
     for (int i = 0; i < NUM_CHARACTERS; ++i)
     {
         box_IsSelectable[i] = new QCheckBox();
@@ -96,14 +111,14 @@ void MainWindow::SetCheckboxes()
 
         if (i % 2 != 1)
         {
-            x += 80;
+            x -= 80;
             startY += 20;
         }
 
         int y = startY;
 
         if (i == NUM_CHARACTERS-1 && i%2 == 0)
-            x = startX + 40;
+            x = startX -80+ 40;
 
         box_IsSelectable[i]->setGeometry(QRect(x, y, 65, 15));
         box_IsSelectable[i]->setText(characters[i].c_str());
@@ -112,11 +127,26 @@ void MainWindow::SetCheckboxes()
     }
 }
 
+
 void MainWindow::Update()
 {
-    PositionCharacters(0);
+    // If the spin has just ended
+    if (!m_Spinning)
+    {
+        btn_Spin->setEnabled(true);
+        for (int i = 0; i < NUM_CHARACTERS; ++i)
+            box_IsSelectable[i]->setEnabled(true);
+
+        ShowMessageBox();
+        m_UpdateTimer->stop();
+        return;
+    }
+
+    Animate();
+    PositionCharacters(m_Degrees);
 }
 
+// Place characters in an oval layout
 void MainWindow::PositionCharacters(double theta)
 {
     std::map<QLabel*, double> os;
@@ -127,107 +157,164 @@ void MainWindow::PositionCharacters(double theta)
     {
         int size = 128;
 
+        // Evenly space characters in a circle
         double y = std::cos(i*(M_PI*2)/NUM_CHARACTERS);
         double x = -std::sin(i*(M_PI*2)/NUM_CHARACTERS);
 
-
+        // Rotate the circle based on input
         double cs = std::cos(theta);
         double sn = std::sin(theta);
-
         double px = x * cs + y * sn;
         double py = x * sn - y * cs;
 
         os[img_Characters[i]]= py;
 
+        // Scale the circle to the oval shape we want
         px *= 1.3;
         py *= 0.2;
-        double sx = px;
         double sy = py;
         px*=radius;
         py*=radius;
 
-
+        // Resize characters based on position
         sy = -sy;
         double norm = (1.8-0.2)/(1- -1)*(sy-1.0)+1.5;
-
         img_Characters[i]->setGeometry(QRect(0, 0, 128*norm, 128*norm));
 
-        QImage image(images[i].size(), QImage::Format_ARGB32_Premultiplied);
-
-        QGraphicsColorizeEffect* effect = new QGraphicsColorizeEffect();
-        QGraphicsOpacityEffect* oEffect = new QGraphicsOpacityEffect();
-
-        oEffect->setOpacity(0.3);
-        effect->setColor(QColor(0, 0, 0, 0));
-
+        // If a character is deselected, make them slightly transparent
+        m_OpacityEffect = new QGraphicsOpacityEffect();
+        m_OpacityEffect->setOpacity(0.3);
         if (!bool_IsSelectable[i])
-            img_Characters[i]->setGraphicsEffect(oEffect);
+            img_Characters[i]->setGraphicsEffect(m_OpacityEffect);
         else
             img_Characters[i]->setGraphicsEffect(0);
 
+        // Finally place them
         img_Characters[i]->setPixmap(images[i].scaled(size*norm, size*norm, Qt::KeepAspectRatio));
         img_Characters[i]->move(QPoint(CHARACTERS_X-px-(128*norm/2), CHARACTERS_Y-(py)   ));
     }
 
+    // Sort by Y value - we've added them to an ordered list.
+    // Now we iterate through it and lower elements furthest from the front
     std::multimap<double, QLabel*> dst = flip_map(os);
     std::multimap<double, QLabel*>::iterator it;
 
     for (it = dst.begin(); it != dst.end(); ++it)
-    {
         (*it).second->lower();
+}
+
+// Spin the circle until we hit the desired character
+void MainWindow::Animate()
+{
+    float speed = 0;
+    float elapsed = m_ElapsedTimer->elapsed();
+
+    float aThresh = 2000;
+    float end = 5000;
+
+    if (elapsed > end)
+    {
+        float t = 360-m_Degrees - m_TargetDegrees;
+        if (std::abs(t) < 240)
+            end += elapsed;
+    }
+    else
+    {
+        float maxSpeed = 10;
+        if (elapsed < aThresh)
+            speed = elapsed/100;
+        else if (elapsed < end-1000)
+            speed = 10;
+        else if (elapsed < end)
+        {
+            speed = (end-elapsed)/60;
+        }
+
+        if (speed > maxSpeed)
+            speed = maxSpeed;
     }
 
+    if (speed < 3 && (m_Degrees < m_TargetDegrees - 2 || m_Degrees > m_TargetDegrees + 2))
+        speed = 3;
+
+    m_Degrees+=speed;
+
+    if (m_Degrees > 360)
+        m_Degrees-=360;
+
+    if (speed == 0)
+        m_Spinning = false;
 }
 
-
-
-MainWindow::~MainWindow()
+// Show the picked character
+void MainWindow::ShowMessageBox()
 {
-    delete ui;
+    QMessageBox* mb = new QMessageBox();
+    mb->setWindowTitle(" ");
+    std::string message = "You're playing as " + characters[m_SelectedCharacter] + "!";
+    mb->setText(message.c_str());
+
+    mb->show();
+    int x = mb->pos().x();
+    int y = mb->pos().y() + 160;
+
+    mb->move(x,y);
 }
 
-
+// Button to spin
 void MainWindow::BtnSpin_Clicked()
-{ //connect(button, SIGNAL(clicked()), this, SLOT(Btn_Spin_Clicked()));
+{
 
+    btn_Spin->setEnabled(false);
+    for (int i = 0; i < NUM_CHARACTERS; ++i)
+        box_IsSelectable[i]->setEnabled(false);
+    m_Spinning = true;
+
+    m_UpdateTimer->stop();
+    m_UpdateTimer->start(60);
+    m_ElapsedTimer->restart();
+
+    // How many characters are selectable
     int charCount=0;
-
     for (int i = 0; i < NUM_CHARACTERS; ++i)
         if (bool_IsSelectable[i])
             charCount++;
 
-    QMessageBox* mb = new QMessageBox();
-    mb->setWindowTitle(" ");
 
+    // If no characters are selectable, we can't do anything
     if (charCount == 0)
     {
+        QMessageBox* mb = new QMessageBox();
+        mb->setWindowTitle(" ");
         mb->setText("You need to select some characters, yo!");
         mb->show();
         return;
     }
+
+
+    // Roll
     int result = std::rand() % charCount;
 
-    std::string characterName;
+    // Sort through deselected characters to find the actual picked character
     int counter = 0;
     for (int i = 0; i < NUM_CHARACTERS; ++i)
     {
 
         if (result == counter && bool_IsSelectable[i])
         {
-            characterName = characters[i];
+            m_SelectedCharacter = i;
             break;
         }
         else if (bool_IsSelectable[i])
             counter++;
-
     }
 
-
-    std::string message = "You're playing as " + characterName + "!";
-    mb->setText(message.c_str());
-    mb->show();
+    // Position of the character in the circle
+    m_TargetDegrees = ((float)m_SelectedCharacter/NUM_CHARACTERS) * 360;
 }
 
+// Toggle character checkbox
+// Find the relevant character based on the label's text
 void MainWindow::Box_Toggled(bool checked)
 {
     QString text = qobject_cast<QCheckBox*>(sender())->text();
@@ -236,9 +323,15 @@ void MainWindow::Box_Toggled(bool checked)
     {
         if (text == QString(characters[i].c_str()))
         {
-            bool_IsSelectable[i] = !bool_IsSelectable[i];
+            bool_IsSelectable[i] = checked;
+            PositionCharacters(m_Degrees);
             return;
         }
     }
 }
 
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
