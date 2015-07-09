@@ -21,3 +21,5 @@ FORMS    += src/MainWindow.ui
 
 RESOURCES += \
     resources.qrc
+
+CONFIG += static

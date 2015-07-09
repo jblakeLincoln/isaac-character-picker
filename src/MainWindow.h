@@ -68,6 +68,10 @@ private:
     double m_SpinningStartTime;
     int m_SelectedCharacter;
 
+
+    bool m_ShouldShowMessageBox;
+    bool m_ShouldPlayAnimation;
+
      QGraphicsOpacityEffect* m_OpacityEffect;
     
 private slots:
@@ -76,6 +80,12 @@ private slots:
 
     void PositionCharacters(double theta);
     void Box_Toggled(bool checked);
+
+    void Titlebar_File_Quit_triggered();
+    void Titlebar_Help_About_triggered();
+    void Titlebar_Edit_ShowMessageBox_toggled(bool checked);
+    void Titlebar_Edit_PlayAnimation_toggled(bool checked);
+
 };
 
 #endif // MAINWINDOW_H

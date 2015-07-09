@@ -33,14 +33,17 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->menuBar->setVisible(false);
+    //ui->menuBar->setVisible(false);
 
     // Setup
     m_Spinning = false;
     m_Degrees = 0;
-    m_TargetDegrees = 180;
+    m_TargetDegrees = 0;
     m_UpdateTimer = new QTimer();
     m_ElapsedTimer = new QTime();
+
+    m_ShouldShowMessageBox = true;
+
 
     setFixedSize(480, 460);
     srand(time(NULL));
@@ -59,6 +62,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_UpdateTimer, SIGNAL(timeout()), this, SLOT(Update()));
 
     PositionCharacters(0);
+
+    connect(ui->actionQuit_Alt_F4, SIGNAL(triggered(bool)), this, SLOT(Titlebar_File_Quit_triggered()));
+    connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(Titlebar_Help_About_triggered()));
+    connect(ui->actionShow_message_box, SIGNAL(toggled(bool)), this, SLOT(Titlebar_Edit_ShowMessageBox_toggled(bool)));
+    connect(ui->actionPlay_animation, SIGNAL(toggled(bool)), this, SLOT(Titlebar_Edit_PlayAnimation_toggled(bool)));
 }
 
 // Position the title text of the window
@@ -137,7 +145,8 @@ void MainWindow::Update()
         for (int i = 0; i < NUM_CHARACTERS; ++i)
             box_IsSelectable[i]->setEnabled(true);
 
-        ShowMessageBox();
+        if (m_ShouldShowMessageBox)
+            ShowMessageBox();
         m_UpdateTimer->stop();
         return;
     }
@@ -183,7 +192,8 @@ void MainWindow::PositionCharacters(double theta)
 
         // If a character is deselected, make them slightly transparent
         m_OpacityEffect = new QGraphicsOpacityEffect();
-        m_OpacityEffect->setOpacity(0.3);
+        m_OpacityEffect->setOpacity(0.35);
+
         if (!bool_IsSelectable[i])
             img_Characters[i]->setGraphicsEffect(m_OpacityEffect);
         else
@@ -255,8 +265,8 @@ void MainWindow::ShowMessageBox()
     mb->setText(message.c_str());
 
     mb->show();
-    int x = mb->pos().x();
-    int y = mb->pos().y() + 160;
+    int x = this->pos().x() + (this->width()/2) - (mb->width()/2);
+    int y = this->pos().y() + (this->height()/2) - (mb->height()/2) + 162;
 
     mb->move(x,y);
 }
@@ -265,14 +275,18 @@ void MainWindow::ShowMessageBox()
 void MainWindow::BtnSpin_Clicked()
 {
 
-    btn_Spin->setEnabled(false);
-    for (int i = 0; i < NUM_CHARACTERS; ++i)
-        box_IsSelectable[i]->setEnabled(false);
-    m_Spinning = true;
+    if (m_ShouldPlayAnimation)
+    {
+        btn_Spin->setEnabled(false);
+        for (int i = 0; i < NUM_CHARACTERS; ++i)
+            box_IsSelectable[i]->setEnabled(false);
+        m_Spinning = true;
 
-    m_UpdateTimer->stop();
-    m_UpdateTimer->start(60);
-    m_ElapsedTimer->restart();
+        m_UpdateTimer->stop();
+        m_UpdateTimer->start(60);
+        m_ElapsedTimer->restart();
+    }
+
 
     // How many characters are selectable
     int charCount=0;
@@ -311,6 +325,15 @@ void MainWindow::BtnSpin_Clicked()
 
     // Position of the character in the circle
     m_TargetDegrees = ((float)m_SelectedCharacter/NUM_CHARACTERS) * 360;
+
+    if (!m_ShouldPlayAnimation)
+    {
+        m_Degrees = m_TargetDegrees;
+        PositionCharacters(m_Degrees);
+        if (m_ShouldShowMessageBox)
+            ShowMessageBox();
+    }
+
 }
 
 // Toggle character checkbox
@@ -334,4 +357,27 @@ void MainWindow::Box_Toggled(bool checked)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::Titlebar_Help_About_triggered()
+{
+    QMessageBox* mb = new QMessageBox();
+    mb->setWindowTitle("About");
+    mb->setText("Yo dawg.");
+    mb->show();
+}
+
+void MainWindow::Titlebar_File_Quit_triggered()
+{
+    this->close();
+}
+
+void MainWindow::Titlebar_Edit_ShowMessageBox_toggled(bool checked)
+{
+    m_ShouldShowMessageBox = checked;
+}
+
+void MainWindow::Titlebar_Edit_PlayAnimation_toggled(bool checked)
+{
+    m_ShouldPlayAnimation = checked;
 }
