@@ -28,3 +28,8 @@ RESOURCES += \
 CONFIG += --no-stl --no-exceptions
 
 win32:RC_ICONS += images/proj.ico
+
+
+
+VERSION = 0.1
+DEFINES += APP_VERSION=\\\"$$VERSION\\\"

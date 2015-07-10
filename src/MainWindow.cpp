@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+
     setFixedSize(480, 460);
     setWindowTitle("The Binding of Isaac Character Picker");
     m_Settings = new QSettings(QSettings::IniFormat, QSettings::UserScope, "bbb", "aaa");
