@@ -1,0 +1,80 @@
+
+@font-face {
+  font-family: "Rebirth";
+  src: url("images/font_Upheavtt.ttf") format("truetype");
+}
+h1 { font-family: "Kimberley", sans-serif }
+
+body {
+	background-image: url("images/background.png");
+	background-color:black;
+	
+	background-position:center center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
+#characters {
+		
+	position:relative;
+	text-align:center;
+	margin-left:50%;
+    margin-right:50%;
+	margin-top: 20%;
+	margin-bottom: auto;
+}
+
+
+#characters img {
+	width:auto;
+	height: auto;
+	position:absolute;
+	
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -o-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    -ms-interpolation-mode: nearest-neighbor;
+    image-rendering: pixelated;
+	
+	user-drag: none; 
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+	-khtml-user-select: none;
+    -o-user-select: none;
+}
+
+#btnHolder {
+	text-align:center;
+	
+	margin-left: auto;
+	margin-right:auto;
+	margin-bottom:auto;
+	margin-top:auto;
+	height: 200px;
+}
+
+#btnSpin{
+	text-align:center;
+	font-family: Rebirth, Verdana;
+	color:white;
+	background:none;
+	border:none;
+	font-size:128px;
+}
+
+#isJsEnabled {
+	margin-left:auto;
+	margin-right:auto;
+	margin-top:auto;
+	margin-bottom:auto;
+	
+	text-align:center;
+	color:white;
+	font-family:Verdana;
+	font-weight:bold;
+	font-size: 72px;
+	width: 50%;
+}
