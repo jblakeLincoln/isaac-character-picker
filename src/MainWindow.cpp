@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent) :
     btn_Launch = new QPushButton();
     btn_Launch->setParent(ui->centralWidget);
     btn_Launch->setText("Launch Game");
-    btn_Launch->setGeometry(CHARACTERS_X-40, box_IsSelectable[NUM_CHARACTERS-1]->pos().y()+40, 80, 30);
+    btn_Launch->setGeometry(CHARACTERS_X-50, box_IsSelectable[NUM_CHARACTERS-1]->pos().y()+40, 100, 30);
     connect(btn_Launch, SIGNAL(clicked(bool)), this, SLOT(BtnLaunch_Clicked()));
     if (m_Settings->value("LaunchFilePath").toString() != "" && m_Settings->value("ShouldShowLaunchButton").toBool() == true)
     {
@@ -549,19 +549,21 @@ void MainWindow::Titlebar_Edit_ShowLaunchButton_toggled(bool checked)
 
 void MainWindow::BtnLaunch_Clicked()
 {
-#ifdef WIN32
+#ifdef _WIN32
     std::string command = "\"" + m_Settings->value("LaunchFilePath").toString().toStdString() + "\"";
     std::cout << command << std::endl;
     system(command.c_str());
 #endif
 
-#ifdef LINUX
+#ifdef linux
     std::string path = m_Settings->value("LaunchFilePath").toString().toStdString();
-    std::string dir = "cd " + command.substr(0, command.find_last_of('\''));
+
+    std::string dir = "cd \"" + path.substr(0, path.find_last_of('//')) + "\"";
 
     int i = path.find_last_of('/');
     std::string file = path.substr(i+1, path.length()-i-1);
-    std::command = dir + " && ./" + file;
+
+    std::string command = dir + " && ./" + file;
     system(command.c_str());
 #endif
 }
