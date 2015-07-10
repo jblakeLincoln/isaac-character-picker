@@ -13,11 +13,14 @@ TEMPLATE = app
 
 
 SOURCES += src/main.cpp\
-        src/MainWindow.cpp
+        src/MainWindow.cpp \
+    src/DailySeedDialog.cpp
 
-HEADERS  += src/MainWindow.h
+HEADERS  += src/MainWindow.h \
+    src/DailySeedDialog.h
 
-FORMS    += src/MainWindow.ui
+FORMS    += src/MainWindow.ui \
+    src/DailySeedDialog.ui
 
 RESOURCES += \
     resources.qrc

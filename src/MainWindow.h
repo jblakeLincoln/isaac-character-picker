@@ -14,6 +14,8 @@
 #include <QIcon>
 #include <QTimer>
 #include <QTime>
+#include <QSettings>
+#include "DailySeedDialog.h"
 
 const int NUM_CHARACTERS = 11; // Subject to change when Afterbirth releases.
 
@@ -69,6 +71,7 @@ private:
     double m_SpinningStartTime;
     int m_SelectedCharacter;
 
+    QSettings* m_Settings;
 
     bool m_ShouldShowMessageBox;
     bool m_ShouldPlayAnimation;
