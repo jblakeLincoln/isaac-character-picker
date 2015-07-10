@@ -4,17 +4,21 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QPushButton>
-#include <string>
-#include <QElapsedTimer>
 #include <QCheckBox>
-#include <QGraphicsEffect>
-#include <QRgb>
+
 #include <QMessageBox>
-#include <time.h>
-#include <QIcon>
 #include <QTimer>
 #include <QTime>
+
+#include <QFontDatabase>
+#include <QGraphicsEffect>
 #include <QSettings>
+
+#include <cmath>
+#include <map>
+#include <string>
+#include <time.h>
+
 #include "DailySeedDialog.h"
 
 const int NUM_CHARACTERS = 11; // Subject to change when Afterbirth releases.
@@ -48,7 +52,7 @@ public:
 
 private:
     Ui::MainWindow* ui;
-    bool bool_IsSelectable[NUM_CHARACTERS];
+    //bool bool_IsSelectable[NUM_CHARACTERS];
     QCheckBox* box_IsSelectable[NUM_CHARACTERS];
 
     QPixmap images[NUM_CHARACTERS];

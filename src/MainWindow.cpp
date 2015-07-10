@@ -1,18 +1,13 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include <QMatrix4x4>
 
-#include <iostream>
-
-#include <cmath>
-#include <map>
-#include <sstream>
+// Position of circle of characters
 const int CHARACTERS_X = 240;
 const int CHARACTERS_Y = 120;
 
 #define M_PI    3.14159265358979323846
 
-
+// Couple of functions to flip maps
 template<typename A, typename B>
 std::pair<B,A> flip_pair(const std::pair<A,B> &p)
 {
@@ -34,13 +29,14 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setFixedSize(480, 460);
-
+    setWindowTitle("The Binding of Isaac Character Picker");
     m_Settings = new QSettings(QSettings::IniFormat, QSettings::UserScope, "bbb", "aaa");
 
-    // Hasn't run before now. If it hasn't, we can set default values.
+    //////
+    // Load settings
+    /////
     if (!m_Settings->value("HasRunBefore").toBool())
     {
-        m_Settings->setValue("HasRunBefore", true);
         m_Settings->setValue("Titlebar_ShouldPlayAnimation", true);
         m_Settings->setValue("Titlebar_ShouldShowMessageBox", true);
     }
@@ -49,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ShouldShowMessageBox = m_Settings->value("Titlebar_ShouldShowMessagebox").toBool();
     ui->actionPlay_animation->setChecked(m_ShouldPlayAnimation);
     ui->actionShow_message_box->setChecked(m_ShouldShowMessageBox);
+
     // Setup
     m_Spinning = false;
     m_Degrees = 0;
@@ -56,35 +53,32 @@ MainWindow::MainWindow(QWidget *parent) :
     m_UpdateTimer = new QTimer();
     m_ElapsedTimer = new QTime();
 
-
-
     srand(time(NULL));
 
     SetTitle();
     SetCharacters();
     SetCheckboxes();
 
+    // Roll button setup
     btn_Spin = new QPushButton();
     btn_Spin->setParent(ui->centralWidget);
     btn_Spin->setText("Roll");
     btn_Spin->setGeometry(CHARACTERS_X-40, CHARACTERS_Y+140, 80, 30);
     connect(btn_Spin, SIGNAL(clicked(bool)), this, SLOT(BtnSpin_Clicked()));
 
+    // Attach functions to titlebar entries
+    connect(ui->actionDaily_Seed, SIGNAL(triggered(bool)), this, SLOT(Titlebar_File_DailySeed_triggered()));
+    connect(ui->actionQuit_Alt_F4, SIGNAL(triggered(bool)), this, SLOT(Titlebar_File_Quit_triggered()));
+    connect(ui->actionShow_message_box, SIGNAL(toggled(bool)), this, SLOT(Titlebar_Edit_ShowMessageBox_toggled(bool)));
+    connect(ui->actionPlay_animation, SIGNAL(toggled(bool)), this, SLOT(Titlebar_Edit_PlayAnimation_toggled(bool)));
+    connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(Titlebar_Help_About_triggered()));
+
+    // Timer for update loop, activated when roll button is pressed
     m_UpdateTimer = new QTimer(this);
     connect(m_UpdateTimer, SIGNAL(timeout()), this, SLOT(Update()));
 
     PositionCharacters(0);
-
-    // Attach functions to titlebar entries
-    connect(ui->actionDaily_Seed, SIGNAL(triggered(bool)), this, SLOT(Titlebar_File_DailySeed_triggered()));
-    connect(ui->actionQuit_Alt_F4, SIGNAL(triggered(bool)), this, SLOT(Titlebar_File_Quit_triggered()));
-
-    connect(ui->actionShow_message_box, SIGNAL(toggled(bool)), this, SLOT(Titlebar_Edit_ShowMessageBox_toggled(bool)));
-    connect(ui->actionPlay_animation, SIGNAL(toggled(bool)), this, SLOT(Titlebar_Edit_PlayAnimation_toggled(bool)));
-
-    connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(Titlebar_Help_About_triggered()));
-
-
+    m_Settings->setValue("HasRunBefore", true);
 }
 
 // Position the title text of the window
@@ -92,10 +86,12 @@ void MainWindow::SetTitle()
 {
     QLabel* lblTitle = new QLabel();
     lblTitle->setParent(ui->centralWidget);
+
+    int id = QFontDatabase::addApplicationFont(":/images/font_Upheavtt.ttf");
+    QString family = QFontDatabase::applicationFontFamilies(id).at(0);
     QFont font = lblTitle->font();
     font.setPixelSize(32);
-    font.setFamily("Upheaval TT (BRK)");
-    font.setBold(true);
+    font.setFamily(family);
     lblTitle->setFont(font);
 
     lblTitle->setText("The Binding of Isaac\nCharacter Selector");
@@ -112,7 +108,7 @@ void MainWindow::SetCharacters()
 {
     for (int i = 0; i < NUM_CHARACTERS; ++i)
     {
-        bool_IsSelectable[i] = true;
+        //bool_IsSelectable[i] = true;
 
         img_Characters[i] = new QLabel();
         img_Characters[i]->setParent(ui->centralWidget);
@@ -136,10 +132,10 @@ void MainWindow::SetCheckboxes()
     {
         box_IsSelectable[i] = new QCheckBox();
         box_IsSelectable[i]->setParent(ui->centralWidget);
-        box_IsSelectable[i]->setChecked(true);
 
+
+        // Move every other one to the side
         int x = startX;
-
         if (i % 2 != 1)
         {
             x -= 80;
@@ -148,6 +144,7 @@ void MainWindow::SetCheckboxes()
 
         int y = startY;
 
+        // If the final one is on its own, center it
         if (i == NUM_CHARACTERS-1 && i%2 == 0)
             x = startX -80 + 50;
 
@@ -158,7 +155,16 @@ void MainWindow::SetCheckboxes()
         box_IsSelectable[i]->setText(characters[i].c_str());
         box_IsSelectable[i]->adjustSize();
 
+        std::string characterString = "checkbox" + characters[i];
+        if (!m_Settings->value("HasRunBefore").toBool())
+        {
+            m_Settings->setValue(characterString.c_str(), true);
+        }
+
+        box_IsSelectable[i]->setChecked(m_Settings->value(characterString.c_str()).toBool());
+
         connect(box_IsSelectable[i], SIGNAL(toggled(bool)), this, SLOT(Box_Toggled(bool)));
+
     }
 }
 
@@ -220,7 +226,7 @@ void MainWindow::PositionCharacters(double theta)
         // If a character is deselected, make them slightly transparent
         float opacity = 0.35;
 
-        if (!bool_IsSelectable[i])
+        if (!box_IsSelectable[i]->isChecked())
         {
             m_OpacityEffect = new QGraphicsOpacityEffect();
             m_OpacityEffect->setOpacity(opacity);
@@ -296,7 +302,7 @@ void MainWindow::BtnSpin_Clicked()
     // How many characters are selectable
     int charCount=0;
     for (int i = 0; i < NUM_CHARACTERS; ++i)
-        if (bool_IsSelectable[i])
+        if (box_IsSelectable[i]->isChecked())
             charCount++;
 
     // If no characters are selectable, we can't do anything
@@ -329,12 +335,12 @@ void MainWindow::BtnSpin_Clicked()
     for (int i = 0; i < NUM_CHARACTERS; ++i)
     {
 
-        if (result == counter && bool_IsSelectable[i])
+        if (result == counter && box_IsSelectable[i]->isChecked())
         {
             m_SelectedCharacter = i;
             break;
         }
-        else if (bool_IsSelectable[i])
+        else if (box_IsSelectable[i]->isChecked())
             counter++;
     }
 
@@ -362,7 +368,8 @@ void MainWindow::Box_Toggled(bool checked)
     {
         if (text == QString(characters[i].c_str()))
         {
-            bool_IsSelectable[i] = checked;
+            std::string characterString = "checkbox" + characters[i];
+            m_Settings->setValue(characterString.c_str(), checked);
             PositionCharacters(m_Degrees);
             return;
         }

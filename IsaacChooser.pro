@@ -25,4 +25,6 @@ FORMS    += src/MainWindow.ui \
 RESOURCES += \
     resources.qrc
 
-#CONFIG += static
+CONFIG += --no-stl --no-exceptions
+
+win32:RC_ICONS += images/proj.ico
