@@ -19,12 +19,14 @@
 #include <cmath>
 #include <iostream>
 #include <map>
+#include <sstream>
 #include <string>
 #include <time.h>
 
 #include "DailySeedDialog.h"
 
 const int NUM_CHARACTERS = 11; // Subject to change when Afterbirth releases.
+const int NUM_EDEN_SPRITES = 10;
 
 const std::string characters[] = {
     "Isaac",

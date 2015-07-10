@@ -69,12 +69,12 @@ MainWindow::MainWindow(QWidget *parent) :
     btn_Spin->setGeometry(CHARACTERS_X-40, CHARACTERS_Y+140, 80, 30);
     connect(btn_Spin, SIGNAL(clicked(bool)), this, SLOT(BtnSpin_Clicked()));
 
-
     btn_Launch = new QPushButton();
     btn_Launch->setParent(ui->centralWidget);
     btn_Launch->setText("Launch Game");
     btn_Launch->setGeometry(CHARACTERS_X-50, box_IsSelectable[NUM_CHARACTERS-1]->pos().y()+40, 100, 30);
     connect(btn_Launch, SIGNAL(clicked(bool)), this, SLOT(BtnLaunch_Clicked()));
+
     if (m_Settings->value("LaunchFilePath").toString() != "" && m_Settings->value("ShouldShowLaunchButton").toBool() == true)
     {
         btn_Launch->show();
@@ -135,9 +135,17 @@ void MainWindow::SetCharacters()
 
         std::string path = ":/images/img_";
         std::string extension = ".png";
-        std::string image = path + characters[i] + extension;
 
-        images[i] = QPixmap(image.c_str());
+
+        std::stringstream image;
+        image << path << characters[i];
+
+        if (characters[i] == "Eden")
+            image << std::rand() % NUM_EDEN_SPRITES + 1;
+
+        image << extension;
+
+        images[i] = QPixmap(image.str().c_str());
         img_Characters[i]->setPixmap(images[i]);
     }
 }
@@ -518,7 +526,7 @@ void MainWindow::Titlebar_Edit_ShowLaunchButton_toggled(bool checked)
         QMessageBox* mb = new QMessageBox();
         mb->setText("Please navigate to your \'The Binding of Isaac: Rebirth\' directory,\n and select the executable file (\"isaac-ng.exe\") to create a launch shortcut");
         mb->exec();
-        dir = "C:/Program Files(x86)/Steam/SteamApps/common/The Binding of Isaac Rebirth";
+        dir = "C:/Program Files (x86)/Steam/SteamApps/common/The Binding of Isaac Rebirth";
     }
     else
         dir = m_Settings->value("LaunchFilePath").toString();
