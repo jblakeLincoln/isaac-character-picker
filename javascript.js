@@ -35,6 +35,8 @@ function mainFunc() {
 		isSelectable[i]=true;
 	}
 	
+	var eden = Math.floor(Math.random()*10)+1;
+	document.getElementById('Eden').src = "images/img_Eden" + eden + ".png";
 	
 	document.getElementById('Isaac').src = "images/img_Isaac.png";
 	document.getElementById('Maggy').src = "images/img_Maggy.png";
@@ -47,8 +49,7 @@ function mainFunc() {
 	document.getElementById('Lazarus').src = "images/img_Lazarus.png";
 	document.getElementById('The Lost').src = "images/img_Lost.png";
 	
-	var eden = Math.floor(Math.random()*10)+1;
-	document.getElementById('Eden').src = "images/img_Eden" + eden + ".png";
+	
 	
 	update();
 }
