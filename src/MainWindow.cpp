@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     m_ShouldPlayAnimation = m_Settings->value("Titlebar_ShouldPlayAnimation").toBool();
-    m_ShouldShowMessageBox = m_Settings->value("Titlebar_ShouldShowMessagebox").toBool();
+    m_ShouldShowMessageBox = m_Settings->value("Titlebar_ShouldShowMessageBox").toBool();
     ui->actionPlay_animation->setChecked(m_ShouldPlayAnimation);
     ui->actionShow_message_box->setChecked(m_ShouldShowMessageBox);
 
