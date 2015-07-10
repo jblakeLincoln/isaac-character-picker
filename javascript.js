@@ -35,6 +35,10 @@ function mainFunc() {
 		isSelectable[i]=true;
 	}
 	
+	for (var i = 0; i < 10; ++i) {
+		document.getElementById('Eden').src = "images/img_Eden" + i + ".png";
+	}
+	
 	var eden = Math.floor(Math.random()*10)+1;
 	document.getElementById('Eden').src = "images/img_Eden" + eden + ".png";
 	
