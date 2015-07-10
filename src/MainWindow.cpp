@@ -523,10 +523,8 @@ void MainWindow::Titlebar_Edit_ShowLaunchButton_toggled(bool checked)
     else
         dir = m_Settings->value("LaunchFilePath").toString();
 
-    if (QDir(dir).exists())
-    {
-        d->setDirectory(QDir::toNativeSeparators(dir));
-    }
+
+    d->setDirectory(dir);
 
     d->exec();
 
@@ -539,6 +537,7 @@ void MainWindow::Titlebar_Edit_ShowLaunchButton_toggled(bool checked)
     else
     {
         QString result =(d->selectedFiles().at(0));
+        std::cout << m_Settings->value("LaunchFilePath").toString().toStdString() << std::endl;
 
         m_Settings->setValue("LaunchFilePath", result);
         m_Settings->setValue("ShouldShowLaunchButton", true);
@@ -550,6 +549,19 @@ void MainWindow::Titlebar_Edit_ShowLaunchButton_toggled(bool checked)
 
 void MainWindow::BtnLaunch_Clicked()
 {
+#ifdef WIN32
     std::string command = "\"" + m_Settings->value("LaunchFilePath").toString().toStdString() + "\"";
+    std::cout << command << std::endl;
     system(command.c_str());
+#endif
+
+#ifdef LINUX
+    std::string path = m_Settings->value("LaunchFilePath").toString().toStdString();
+    std::string dir = "cd " + command.substr(0, command.find_last_of('\''));
+
+    int i = path.find_last_of('/');
+    std::string file = path.substr(i+1, path.length()-i-1);
+    std::command = dir + " && ./" + file;
+    system(command.c_str());
+#endif
 }
