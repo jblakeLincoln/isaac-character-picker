@@ -63,6 +63,7 @@ body {
 	background:none;
 	border:none;
 	font-size:128px;
+	white-space: pre;
 }
 
 #isJsEnabled {

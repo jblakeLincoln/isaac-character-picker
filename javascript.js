@@ -35,6 +35,18 @@ function mainFunc() {
 		isSelectable[i]=true;
 	}
 	
+	
+	document.getElementById('Isaac').src = "images/img_Isaac.png";
+	document.getElementById('Maggy').src = "images/img_Maggy.png";
+	document.getElementById('Cain').src = "images/img_Cain.png";
+	document.getElementById('Judas').src = "images/img_Judas.png";
+	document.getElementById('???').src = "images/img_BlueBaby.png";
+	document.getElementById('Eve').src = "images/img_Eve.png";
+	document.getElementById('Samson').src = "images/img_Samson.png";
+	document.getElementById('Azazel').src = "images/img_Azazel.png";
+	document.getElementById('Lazarus').src = "images/img_Lazarus.png";
+	document.getElementById('The Lost').src = "images/img_Lost.png";
+	
 	var eden = Math.floor(Math.random()*10)+1;
 	document.getElementById('Eden').src = "images/img_Eden" + eden + ".png";
 	
