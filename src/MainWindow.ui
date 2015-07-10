@@ -51,6 +51,7 @@
     </property>
     <addaction name="actionPlay_animation"/>
     <addaction name="actionShow_message_box"/>
+    <addaction name="actionShow_launch_button"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -103,6 +104,14 @@
   <action name="actionQuit_Alt_F4">
    <property name="text">
     <string>Quit (Alt+F4)</string>
+   </property>
+  </action>
+  <action name="actionShow_launch_button">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show launch button</string>
    </property>
   </action>
  </widget>

@@ -49,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionShow_message_box->setChecked(m_ShouldShowMessageBox);
 
     // Setup
+    m_JustTriedDialog = false;
     m_Spinning = false;
     m_Degrees = 0;
     m_TargetDegrees = 0;
@@ -68,11 +69,27 @@ MainWindow::MainWindow(QWidget *parent) :
     btn_Spin->setGeometry(CHARACTERS_X-40, CHARACTERS_Y+140, 80, 30);
     connect(btn_Spin, SIGNAL(clicked(bool)), this, SLOT(BtnSpin_Clicked()));
 
+
+    btn_Launch = new QPushButton();
+    btn_Launch->setParent(ui->centralWidget);
+    btn_Launch->setText("Launch Game");
+    btn_Launch->setGeometry(CHARACTERS_X-40, box_IsSelectable[NUM_CHARACTERS-1]->pos().y()+40, 80, 30);
+    connect(btn_Launch, SIGNAL(clicked(bool)), this, SLOT(BtnLaunch_Clicked()));
+    if (m_Settings->value("LaunchFilePath").toString() != "" && m_Settings->value("ShouldShowLaunchButton").toBool() == true)
+    {
+        btn_Launch->show();
+        setFixedSize(480, 500);
+        ui->actionShow_launch_button->setChecked(true);
+    }
+    else
+        btn_Launch->hide();
+
     // Attach functions to titlebar entries
     connect(ui->actionDaily_Seed, SIGNAL(triggered(bool)), this, SLOT(Titlebar_File_DailySeed_triggered()));
     connect(ui->actionQuit_Alt_F4, SIGNAL(triggered(bool)), this, SLOT(Titlebar_File_Quit_triggered()));
     connect(ui->actionShow_message_box, SIGNAL(toggled(bool)), this, SLOT(Titlebar_Edit_ShowMessageBox_toggled(bool)));
     connect(ui->actionPlay_animation, SIGNAL(toggled(bool)), this, SLOT(Titlebar_Edit_PlayAnimation_toggled(bool)));
+    connect(ui->actionShow_launch_button, SIGNAL(toggled(bool)), this, SLOT(Titlebar_Edit_ShowLaunchButton_toggled(bool)));
     connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(Titlebar_Help_About_triggered()));
 
     // Timer for update loop, activated when roll button is pressed
@@ -291,7 +308,7 @@ void MainWindow::ShowMessageBox()
     std::string message = "You're playing as " + characters[m_SelectedCharacter] + "!";
     mb->setText(message.c_str());
 
-    mb->show();
+    mb->exec();
     int x = this->pos().x() + (this->width()/2) - (mb->width()/2);
     int y = this->pos().y() + (this->height()/2) - (mb->height()/2) + 162;
 
@@ -313,7 +330,7 @@ void MainWindow::BtnSpin_Clicked()
         QMessageBox* mb = new QMessageBox();
         mb->setWindowTitle(" ");
         mb->setText("You need to select some characters, yo!");
-        mb->show();
+        mb->exec();
         return;
     }
 
@@ -394,7 +411,7 @@ void MainWindow::Titlebar_Help_About_triggered()
         "For any problems/suggestions, contact AntiIogical on Reddit.";
     mb->setText(message.c_str());
     mb->setFixedSize(700,100);
-    mb->show();
+    mb->exec();
 
    // mb->adjustSize();
 
@@ -472,4 +489,67 @@ void MainWindow::Titlebar_Edit_PlayAnimation_toggled(bool checked)
 {
     m_ShouldPlayAnimation = checked;
     m_Settings->setValue("Titlebar_ShouldPlayAnimation", checked);
+}
+
+void MainWindow::Titlebar_Edit_ShowLaunchButton_toggled(bool checked)
+{
+    if (m_JustTriedDialog)
+    {
+        m_JustTriedDialog = false;
+        return;
+    }
+
+    // Deselecting - hide everying
+    if (!checked)
+    {
+        btn_Launch->hide();
+        m_Settings->setValue("ShouldShowLaunchButton", false);
+        setFixedSize(480, 460);
+        return;
+    }
+
+    QFileDialog* d = new QFileDialog();
+    d->setAcceptMode(QFileDialog::AcceptOpen);
+
+    QString dir;
+    if (m_Settings->value("LaunchFilePath").toString() == "")
+    {
+
+        QMessageBox* mb = new QMessageBox();
+        mb->setText("Please navigate to your \'The Binding of Isaac: Rebirth\' directory,\n and select the executable file (\"isaac-ng.exe\") to create a launch shortcut");
+        mb->exec();
+        dir = "C:/Program Files(x86)/Steam/SteamApps/common/The Binding of Isaac Rebirth";
+    }
+    else
+        dir = m_Settings->value("LaunchFilePath").toString();
+
+    if (QDir(dir).exists())
+    {
+        d->setDirectory(QDir::toNativeSeparators(dir));
+    }
+
+    d->exec();
+
+    if (d->result() == QDialog::Rejected)
+    {
+        m_JustTriedDialog = true;
+        ui->actionShow_launch_button->setChecked(false);
+        return;
+    }
+    else
+    {
+        QString result =(d->selectedFiles().at(0));
+
+        m_Settings->setValue("LaunchFilePath", result);
+        m_Settings->setValue("ShouldShowLaunchButton", true);
+
+        btn_Launch->show();
+        setFixedSize(480, 500);
+    }
+}
+
+void MainWindow::BtnLaunch_Clicked()
+{
+    std::string command = "\"" + m_Settings->value("LaunchFilePath").toString().toStdString() + "\"";
+    system(command.c_str());
 }

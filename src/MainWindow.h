@@ -10,11 +10,14 @@
 #include <QTimer>
 #include <QTime>
 
+#include <QDir>
+#include <QFileDialog>
 #include <QFontDatabase>
 #include <QGraphicsEffect>
 #include <QSettings>
 
 #include <cmath>
+#include <iostream>
 #include <map>
 #include <string>
 #include <time.h>
@@ -65,6 +68,8 @@ private:
     void ShowMessageBox();
 
     QPushButton* btn_Spin;
+    QPushButton* btn_Launch;
+    bool m_JustTriedDialog;
 
     bool m_Spinning;
     QTimer* m_UpdateTimer;
@@ -84,6 +89,7 @@ private:
     
 private slots:
     void BtnSpin_Clicked();
+    void BtnLaunch_Clicked();
     void Update();
 
     void PositionCharacters(double theta);
@@ -94,7 +100,7 @@ private slots:
     void Titlebar_Help_About_triggered();
     void Titlebar_Edit_ShowMessageBox_toggled(bool checked);
     void Titlebar_Edit_PlayAnimation_toggled(bool checked);
-
+    void Titlebar_Edit_ShowLaunchButton_toggled(bool checked);
 };
 
 #endif // MAINWINDOW_H
