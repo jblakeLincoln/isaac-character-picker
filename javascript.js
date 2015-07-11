@@ -246,12 +246,13 @@ function getWidthOnScale() {
 	
 	// Scale the character spinner
 	var newCharHeight = windowWidth/7;
-	if (newCharHeight < 120)
-		newCharHeight = 120;
+	if (newCharHeight < 140)
+		newCharHeight = 140;
 	
-	document.getElementById('btnHolder').style.height = newCharHeight*0.75+"px";
+	document.getElementById('btnHolder').style.height = newCharHeight*0.65+"px";
 	document.getElementById('characters').style.height = newCharHeight+"px";
 
+	// Change the button size based on text contents
 	if (document.getElementById('btnSpin').value === "Roll")
 		currentFontSize = 200;
 	else
@@ -261,8 +262,8 @@ function getWidthOnScale() {
 		document.getElementById('selectionRow').style.width = 320+"px";
 	else
 		document.getElementById('selectionRow').style.width = 1000+"px";
-	var fontz = baseFontSize*currentFontSize;
 	
+	var fontz = baseFontSize*currentFontSize;
 	document.getElementById('btnSpin').style.fontSize = fontz + "px";
 	
 	positionAll();
