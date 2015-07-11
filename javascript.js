@@ -6,7 +6,7 @@ targetTheta = 180;
 isSpinning = false;
 spinSpeed = 0; // Speed at which theta is incremented
 spinCounter = 0; // Timing the spins, counting frame by frame
-rollResult = 0; // Which character has been rolled
+var rollResult = 0; // Which character has been rolled
 
 var spinInterval; // Reference to our update loop
 var isSelectable = new Array(NUM_CHARACTERS);
@@ -134,7 +134,7 @@ function update(){
 			spinSpeed = 0;
 			thetaDeg = targetTheta;
 			
-			document.getElementById('btnSpin').value = characters[rollResult] + "\nRoll again?";
+			document.getElementById('btnSpin').value = characters[rollResult] + "\n Roll again?";
 			window.clearInterval(spinInterval); // remove update calls
 		}
 	}
@@ -182,7 +182,7 @@ function onSpinClick() {
 	
 	// If no characters are left as options, we can't do anything
 	if (possibleCount === 0) {
-		document.getElementById('btnSpin').value = "Select\nCharacters";
+		document.getElementById('btnSpin').value = "Select\n Characters";
 		return;
 	}
 	
@@ -192,12 +192,15 @@ function onSpinClick() {
 	
 	// Roll based on how many choices we have
 	// Then find the character's place in degrees at the edge of the circle
-	rollResult = Math.floor(Math.random()*possibleCount);
+	rollResult = Math.floor(Math.random()*(parseInt(possibleCount)));
 	
+	document.getElementById('btnSpin').value = rollResult;
 	var tempCount = 0;
 	for (var i = 0; i < NUM_CHARACTERS; ++i) {
-		if (rollResult === tempCount && isSelectable[i])
+		if (rollResult === tempCount && isSelectable[i]) {
 			rollResult = i;
+			break;
+		}
 		else if (isSelectable[i])
 			tempCount++;
 	}
@@ -206,7 +209,6 @@ function onSpinClick() {
 	spinInterval = setInterval(update, 30);
 	
 
-	document.getElementById('btnSpin').value = " ";
 }
 
 // Character (de)selection

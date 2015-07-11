@@ -4,6 +4,10 @@
   src: url("images/font_Upheavtt.ttf") format("truetype");
 }
 
+a {
+	color:inherit;
+	text-decoration:inherit;
+}
 body {
 background-image: url("images/background.png");
 
@@ -11,10 +15,11 @@ background-image: url("images/background.png");
 	background-position:center center;
 background-size:100%;
 
+	margin: 0 auto;
 	left:0;
-right:0;
-top:0;
-bottom:0;
+	right:0;
+	top:0;
+	bottom:0;
 width:auto;
 height:auto;
 	-webkit-background-size: cover;
@@ -109,4 +114,21 @@ position:absolute;
 	border: 2px solid rgb(50,50,50);
 	background-color:rgb(20,20,20);
 	border-radius:6px;
+}
+
+#titleBar {
+	position:absolute;
+	width:100%;
+	background-color:rgb(40,40,40);
+	color: rgb(200,200,200);
+	text-align:center;
+	margin:0 auto;
+	margin-top:0;
+	padding-top:4px;
+	padding-bottom:4px;
+	left:0px;
+	bottom:0px;
+	font-family: Rebirth, Verdana;
+	opacity:0.95;
+	
 }
