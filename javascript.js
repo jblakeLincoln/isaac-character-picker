@@ -194,7 +194,7 @@ function onSpinClick() {
 	// Then find the character's place in degrees at the edge of the circle
 	rollResult = Math.floor(Math.random()*(parseInt(possibleCount)));
 	
-	document.getElementById('btnSpin').value = rollResult;
+	document.getElementById('btnSpin').value = " ";
 	var tempCount = 0;
 	for (var i = 0; i < NUM_CHARACTERS; ++i) {
 		if (rollResult === tempCount && isSelectable[i]) {
