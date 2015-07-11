@@ -259,7 +259,7 @@ function getWidthOnScale() {
 		currentFontSize=100;
 	
 	if (windowWidth < 1000)
-		document.getElementById('selectionRow').style.width = 320+"px";
+		document.getElementById('selectionRow').style.width = 240+"px";
 	else
 		document.getElementById('selectionRow').style.width = 1000+"px";
 	
