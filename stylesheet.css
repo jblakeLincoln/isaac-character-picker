@@ -3,27 +3,36 @@
   font-family: "Rebirth";
   src: url("images/font_Upheavtt.ttf") format("truetype");
 }
-h1 { font-family: "Kimberley", sans-serif }
 
 body {
-	background-image: url("images/background.png");
+background-image: url("images/background.png");
+
 	background-color:black;
-	
 	background-position:center center;
+background-size:100%;
+
+	left:0;
+right:0;
+top:0;
+bottom:0;
+width:auto;
+height:auto;
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
 	-o-background-size: cover;
 	background-size: cover;
+
+position:absolute;
 }
 
 #characters {
-		
-	position:relative;
 	text-align:center;
-	margin-left:50%;
-    margin-right:50%;
-	margin-top: 20%;
-	margin-bottom: auto;
+	position:relative;
+	margin-left: 50%;
+	margin-right: 50%;
+	width:100px;
+	height:20px;
+	margin-top:14%;
 }
 
 
@@ -32,28 +41,26 @@ body {
 	height: auto;
 	position:absolute;
 	
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -o-crisp-edges;
-    image-rendering: -webkit-optimize-contrast;
-    -ms-interpolation-mode: nearest-neighbor;
-    image-rendering: pixelated;
+    	image-rendering: -moz-crisp-edges;
+    	image-rendering: -o-crisp-edges;
+    	image-rendering: -webkit-optimize-contrast;
+    	-ms-interpolation-mode: nearest-neighbor;
+    	image-rendering: pixelated;
 	
 	user-drag: none; 
 	-moz-user-select: none;
 	-webkit-user-select: none;
 	user-select: none;
 	-khtml-user-select: none;
-    -o-user-select: none;
+    	-o-user-select: none;
 }
 
 #btnHolder {
 	text-align:center;
-	
-	margin-left: auto;
+	margin-left:auto;
 	margin-right:auto;
-	margin-bottom:auto;
-	margin-top:auto;
-	height: 200px;
+	height: auto;
+	overflow:visible;
 }
 
 #btnSpin{
@@ -64,6 +71,7 @@ body {
 	border:none;
 	font-size:128px;
 	white-space: pre;
+	overflow:visible;
 }
 
 #isJsEnabled {
@@ -78,4 +86,16 @@ body {
 	font-weight:bold;
 	font-size: 72px;
 	width: 50%;
+}
+
+#selectionRow{
+	width: 50%;
+	text-align:center;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+#selectionRow img {
+	position:relative;
+	display:inline-block;
 }

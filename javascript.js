@@ -11,6 +11,12 @@ rollResult = 0; // Which character has been rolled
 var spinInterval; // Reference to our update loop
 var isSelectable = new Array(NUM_CHARACTERS);
 
+// Scale things relative to window size
+var windowWidth = 1900;
+var windowHeight=1000;
+var baseFontSize = 200;
+var currentFontSize = 200;
+
 var characters = ["Isaac", 
 					"Maggy", 
 					"Cain", 
@@ -25,23 +31,32 @@ var characters = ["Isaac",
 
 
 function mainFunc() {
-
 	document.getElementById('btnSpin').value = "Roll";
+	getWidthOnScale();
 	document.getElementById('isJsEnabled').innerHTML = "";
-	document.getElementById('characters').style.height = 300+"px";
 	
 	for (var i = 0; i < NUM_CHARACTERS; ++i) {
 		isSelectable.push(true);
 		isSelectable[i]=true;
+		
+		if (characters[i] == "The Lost")
+		{
+			isSelectable[i] = false;
+			document.getElementById(characters[i]+"Thumb").style.opacity = 0.6;
+		}	
 	}
 	
+	// Get a random Eden image
+	document.getElementById('Eden').style.opacity = 0.0;
 	for (var i = 0; i < 10; ++i) {
+		
 		document.getElementById('Eden').src = "images/img_Eden" + i + ".png";
 	}
-	
+
 	var eden = Math.floor(Math.random()*10)+1;
 	document.getElementById('Eden').src = "images/img_Eden" + eden + ".png";
-	
+	document.getElementById('Eden').style.opacity = 1.0;
+	document.getElementById('EdenThumb').src = "images/img_Eden" + eden + ".png";
 	document.getElementById('Isaac').src = "images/img_Isaac.png";
 	document.getElementById('Maggy').src = "images/img_Maggy.png";
 	document.getElementById('Cain').src = "images/img_Cain.png";
@@ -52,8 +67,6 @@ function mainFunc() {
 	document.getElementById('Azazel').src = "images/img_Azazel.png";
 	document.getElementById('Lazarus').src = "images/img_Lazarus.png";
 	document.getElementById('The Lost').src = "images/img_Lost.png";
-	
-	
 	
 	update();
 }
@@ -75,24 +88,31 @@ function positionImages(img) {
     py = x * sn - y * cs;
 	
 	// Turn the circle into an oval
-	px*=1.3;
-	py*=0.25;
+	px*=1.5 *(windowWidth*0.0005);
+	py*=0.3;
 	
 	// Scale the circle up for display
-	px *= -300;
-	py *= -300;
+	px *= 200;
+	py *= -200;
+	
+
+	img.style.opacity = (100+py)/100;
 	
 	// Set zindex so everything overlaps properly, then position them
 	img.style.zIndex = parseInt(py);
-	img.style.left = -80+px + "px";
+	img.style.left = px + "px";
 	img.style.top = py + "px";
 	
 	// Scale spirte based on depth
-	final = 120+(parseInt(img.style.top) *0.5);
-	img.style.width = final+"px";
-	img.style.height = final+"px";
+	final = (parseInt(img.style.top) *0.4);
+	img.style.width = 196 + final + "px";//final+"px";
 	
-	currentIndex++;
+	var news = windowWidth*0.1;
+	//newSize *= img.style.width;
+	img.style.width = news + "px";
+	//img.style.height = final+"px";
+	img.style.left = -parseFloat(img.style.left) - parseFloat(img.style.width)/2+"px";//-(parseInt(img.style.left) - final) + "px";
+	currentIndex++;	
 }
 
 function update(){
@@ -113,6 +133,7 @@ function update(){
 			isSpinning = false;
 			spinSpeed = 0;
 			thetaDeg = targetTheta;
+			
 			document.getElementById('btnSpin').value = characters[rollResult] + "\nRoll again?";
 			window.clearInterval(spinInterval); // remove update calls
 		}
@@ -124,6 +145,10 @@ function update(){
 		thetaDeg -= 360;
 	
 	// Now that we've changed theta, reposition everything
+	positionAll();
+}
+
+function positionAll() {
 	currentIndex = 0;
 	positionImages(document.getElementById('Isaac'));
 	positionImages(document.getElementById('Maggy'));
@@ -142,6 +167,10 @@ function update(){
 function onSpinClick() {
 	if (isSpinning)
 		return;
+	
+	currentFontSize=100;
+	var fontz = baseFontSize*currentFontSize;
+	document.getElementById('btnSpin').style.fontSize = fontz + "px";
 	
 	// Count up how many choices we have
 	var possibleCount = 0;
@@ -176,8 +205,8 @@ function onSpinClick() {
 	targetTheta = (rollResult/NUM_CHARACTERS)*360;
 	spinInterval = setInterval(update, 30);
 	
-	document.getElementById('btnSpin').style.fontSize = 96 + "px";
-	document.getElementById('btnSpin').value = "";
+
+	document.getElementById('btnSpin').value = " ";
 }
 
 // Character (de)selection
@@ -185,14 +214,14 @@ function onIconClick(e) {
 	if (isSpinning)
 		return;
 	
+	
 	// Get the triggered element
 	if (!e)
         e = window.event;
     var sender = e.srcElement || e.target;
-	
 	// Find the triggered element and change its opacity
     for (var i = 0; i < NUM_CHARACTERS; ++i) {
-		if (sender.id == characters[i])
+		if (sender.id == characters[i]+"Thumb")
 		{
 			isSelectable[i] = !isSelectable[i];
 
@@ -205,4 +234,40 @@ function onIconClick(e) {
 	}	
 }
 
+// Change things based on window size
+function getWidthOnScale() {
+	// Store the current w/h values
+	windowWidth = document.body.clientWidth;
+	windowHeight = document.body.clientHeight;
+	
+	// Scale the font
+	baseFontSize = windowWidth*0.0004;
+	document.getElementById('btnSpin').style.fontSize = baseFontSize*currentFontSize+"px";
+	
+	// Scale the character spinner
+	var newCharHeight = windowWidth/7;
+	if (newCharHeight < 120)
+		newCharHeight = 120;
+	
+	document.getElementById('btnHolder').style.height = newCharHeight*0.75+"px";
+	document.getElementById('characters').style.height = newCharHeight+"px";
+
+	if (document.getElementById('btnSpin').value === "Roll")
+		currentFontSize = 200;
+	else
+		currentFontSize=100;
+	
+	if (windowWidth < 1000)
+		document.getElementById('selectionRow').style.width = 320+"px";
+	else
+		document.getElementById('selectionRow').style.width = 1000+"px";
+	var fontz = baseFontSize*currentFontSize;
+	
+	document.getElementById('btnSpin').style.fontSize = fontz + "px";
+	
+	positionAll();
+}
+
 window.onload = mainFunc;
+
+window.onresize = getWidthOnScale;
