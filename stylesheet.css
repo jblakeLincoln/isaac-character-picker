@@ -93,9 +93,20 @@ position:absolute;
 	text-align:center;
 	margin-left:auto;
 	margin-right:auto;
+	
+
+	user-drag: none; 
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+	-khtml-user-select: none;
+    -o-user-select: none;
 }
 
 #selectionRow img {
 	position:relative;
 	display:inline-block;
+	border: 2px solid rgb(50,50,50);
+	background-color:rgb(20,20,20);
+	border-radius:6px;
 }

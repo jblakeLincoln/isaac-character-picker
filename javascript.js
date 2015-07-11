@@ -42,7 +42,7 @@ function mainFunc() {
 		if (characters[i] == "The Lost")
 		{
 			isSelectable[i] = false;
-			document.getElementById(characters[i]+"Thumb").style.opacity = 0.6;
+			document.getElementById(characters[i]+"Thumb").style.opacity = 0.3;
 		}	
 	}
 	
@@ -228,7 +228,7 @@ function onIconClick(e) {
 			if (isSelectable[i])
 				document.getElementById(sender.id).style.opacity = 1.0;
 			else
-				document.getElementById(sender.id).style.opacity = 0.6;
+				document.getElementById(sender.id).style.opacity = 0.3;
 			break;
 		}
 	}	
